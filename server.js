@@ -71,10 +71,10 @@ app.use('/logout',      require('./routes/logout'));
 app.use('/modelview',   require('./routes/public/modelview'));
 
 app.use(verifyJWT);
+app.use('/files',       require('./routes/api/files'));
 app.use('/products',    require('./routes/api/products'));
 app.use('/users',       require('./routes/api/users'));
 app.use('/models',      require('./routes/api/models'));
-app.use('/upload',      require('./routes/api/upload'));
 
 app.all('*', (req, res) => {
     res.status(404);

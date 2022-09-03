@@ -1,23 +1,27 @@
-const { Model } = require('../../model/Schemas');
+const { Model, Product } = require('../../model/Schemas');
 const { isExistingProduct } = require('./productsController');
 
 const createModel = async (req,res) => {
-    const { pid } = req.params;
-    const { color, size, image, model } = req.body;
-    if(!pid || !color || !size || !image || !model){
-        return res.status(400).json({ 'message': 'Not enough data' });
-    }
-    try {
-        const productExists = await isExistingProduct(pid);
+    try {   
+        const { pid } = req.params;
+        const { color, size, file_id, link } = req.body;
+        if(!pid || !color || !size || !file_id || !link){
+            return res.status(400).json({ 'message': 'Not enough data' });
+        }
+        const productExists = await Product.findById(pid);
         if (!productExists) return res.status(204).json({ 'message': `This product does not exist`});
-
+        
         const result = await Model.create({
             product_id: pid,
             color: color,
             size: size,
-            image: image,
-            model: model
+            file: file_id,
+            link: link
         });
+        productExists.models.push(result._id);
+        productExists.sizes.push(result.size);
+        await productExists.save();
+        
         res.status(201).json(result);
     } catch (err) {
         console.error(err);
@@ -73,7 +77,7 @@ const readModel = async (req, res) => {
 
 const updateModel = async (req, res) => {
     const { id } = req.params;
-    const { color, size, model } = req.body;
+    const { color, size, file_id, link } = req.body;
     if(!id || !color || !size ){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
@@ -86,8 +90,11 @@ const updateModel = async (req, res) => {
         try {
             foundModel.color = color;
             foundModel.size = size;
-            if(model) foundModel.model = model;
+            if ( file_id ) foundModel.file = file_id;
+            if ( path ) foundModel.link = path;
             const result = await foundModel.save();
+            // await productExists.sizes.push(result.size);
+
             return res.status(201).json(result);
         } catch (err) {
             return res.status(500).json(err);

@@ -1,14 +1,14 @@
-const {Product} = require('../../model/Schemas');
+const {Product, User} = require('../../model/Schemas');
 const {getUser_id} = require('./usersController');
 
 const createProduct = async (req,res) => {
-    const { category, name, description, price } = req.body;
-    if(!category || !name || !description || !price || !req?.user){
+    const { category, name, description, price, thumb_id, thumb_path } = req.body;
+    if(!category || !name || !description || !price || !thumb_id || !thumb_path || !req?.user){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
     try {
-        const id = await getUser_id(req.user);
-        if(!id) {
+        const foundUser = await User.findOne({username: req.user});
+        if(!foundUser) {
             return res.status(204).json({ 'message': `This client does not exist`});
         }
         const result = await Product.create({
@@ -16,8 +16,11 @@ const createProduct = async (req,res) => {
             name: name,
             description: description,
             price: price,
-            client_id: id
+            client_id: foundUser._id,
+            thumb: thumb_id,
+            thumb_link: thumb_path
         });
+        await foundUser.products.push(result._id);
         res.status(201).json(result);
     } catch (err) {
         console.error(err);
@@ -25,16 +28,38 @@ const createProduct = async (req,res) => {
 }
 
 const readAllProductsForClient = async (req, res) => {
-    if(!req?.user){
-        return res.status(400).json({ 'message': 'Wrong request' });
-    }
     try {
+        if(!req?.user){
+            return res.status(400).json({ 'message': 'Wrong request' });
+        }
         const _id = await getUser_id(req.user);
         if(!_id) {
             return res.status(204).json({ 'message': `This client does not exist`});
         }
         // Get Products List
         const result = await Product.find({ client_id: _id }).exec();
+        if (!result) {
+            return res.status(204).json({ 'message': `This client has no Products`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
+const getProductsForClient = async (req, res) => {
+    try {
+        const {cid} = req.params;
+        if(!cid){
+            return res.status(400).json({ 'message': 'Wrong request' });
+        }
+        const client = await User.findById(cid);
+        if(!client) {
+            return res.status(204).json({ 'message': `This client does not exist`});
+        }
+        // Get Products List
+        const result = await Product.find({ client_id: cid }).exec();
         if (!result) {
             return res.status(204).json({ 'message': `This client has no Products`});
         }
@@ -72,7 +97,7 @@ const readProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, description, price } = req.body;
+    const { name, description, price, thumb_id, thumb_path  } = req.body;
     if(!id || !name || !description || !price || !req?.user){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
@@ -132,5 +157,6 @@ module.exports = {
     deleteProduct,
     isExistingProduct,
     readAllProductsForClient,
+    getProductsForClient,
     readAllProducts
 }
