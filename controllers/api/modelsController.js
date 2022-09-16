@@ -91,7 +91,7 @@ const updateModel = async (req, res) => {
             foundModel.color = color;
             foundModel.size = size;
             if ( file_id ) foundModel.file = file_id;
-            if ( path ) foundModel.link = path;
+            if ( link ) foundModel.link = link;
             const result = await foundModel.save();
             // await productExists.sizes.push(result.size);
 

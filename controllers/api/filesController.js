@@ -52,6 +52,33 @@ const uploadThumb = async (req, res) => {
     }
 }
 
+const deleteFile = async (req, res) => {
+    try {
+        const {file_id} = req.params;
+        if (!file_id) return res.sendStatus(400);
+        const res = await deleteService(file_id);
+        if (!res) return res.sendStatus(400);
+        else res.sendStatus(200);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+}
+
+const deleteService = async (file_id) => {
+    try {
+        const found = await File.findById(file_id);
+        if (!found) return null;
+        await found.delete();
+
+        // Delete or archieve the file?
+
+        return true;
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+}
 
 const uploadService = async (file, fileType, path) => {
     try {
@@ -76,5 +103,6 @@ const uploadService = async (file, fileType, path) => {
 
 module.exports = {
     uploadModel,
-    uploadThumb
+    uploadThumb,
+    deleteFile
 }
