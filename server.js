@@ -40,7 +40,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true, limit: '10mb'}));
 
 // built-in middleware for json 
-app.use(express.json({limit: '1kb'}));
+app.use(express.json({limit: '10mb'}));
 
 // HPP
 app.use(hpp());
