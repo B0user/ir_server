@@ -1,11 +1,13 @@
 const path = require('path');
-const { File } = require('../../model/Schemas');
+const { v4: uuid } = require('uuid');
+const { File, Model } = require('../../model/Schemas');
 const {getUser_id} = require('./usersController');
 
 const uploadModel = async (req, res) => {
     try {
         const {client_id, product_id} = req.body;
         if(!req.files || !client_id || !product_id) {
+            console.log('no file uploaded');
             return res.status(400).send({
                 status: false,
                 message: 'No file info uploaded'
@@ -14,9 +16,11 @@ const uploadModel = async (req, res) => {
             // Get info
             const model = req.files.model;
             if(!model) return res.sendStatus(400);
-            const pathModel = path.join('\\', 'media', 'models', client_id, product_id, model.name);
+            const name = uuid() + '.' + model.name.split('.').pop();;
+            const pathModel = path.join('\\', 'media', 'models', client_id, product_id, name);
            
-            const result = await uploadService(model, 'model', pathModel);
+            const result = await uploadService(model, 'model', pathModel, name);
+            console.log(result);
             if (!result) return res.sendStatus(409);
             res.status(201).json(result);
         }
@@ -39,13 +43,31 @@ const uploadThumb = async (req, res) => {
             const image = req.files.thumb;
             if(!image) return res.sendStatus(400);
             const client_id = await getUser_id(req.user);
-            const pathImage = path.join('\\', 'media', 'thumbs', client_id.toString(), image.name);
             
-            const result = await uploadService(image, 'image', pathImage);
+            const name = uuid() + '.' + image.name.split('.').pop();
+            const pathImage = path.join('\\', 'media', 'thumbs', client_id.toString(), name);
+            
+            const result = await uploadService(image, 'image', pathImage, name);
             if (!result) return res.sendStatus(409);
             res.status(201).json(result);
         }
 
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+}
+
+const deleteModelById = async (req, res) => {
+    try {
+        console.log('MODEL BY ID DELETE');
+        const { id } = req.params;
+        const file_id = await Model.findById(id, 'file');
+        console.log(file_id);
+        if (!file_id) return res.sendStatus(400);
+        const result = await deleteService(file_id);
+        console.log(result);
+        res.sendStatus(200);
     } catch (err) {
         console.error(err);
         res.status(500).send(err);
@@ -67,10 +89,12 @@ const deleteFile = async (req, res) => {
 
 const deleteService = async (file_id) => {
     try {
+        console.log('DELETION');
         const found = await File.findById(file_id);
+        console.log(found);
         if (!found) return null;
-        await found.delete();
-
+        const res = await found.delete();
+        console.log(res);
         // Delete or archieve the file?
 
         return true;
@@ -80,15 +104,15 @@ const deleteService = async (file_id) => {
     }
 }
 
-const uploadService = async (file, fileType, path) => {
+const uploadService = async (file, fileType, path, name) => {
     try {
-        const found = await File.findOne({name: file.name, path: path});
+        const found = await File.findOne({name: name, path: path});
         if (found) return {path: found.path, file_id: found._id};
         // Uploading
         file.mv("public" + path);
         // Create new File
         const fileDB = new File({
-            name: file.name,
+            name: name,
             type: fileType,
             size: file.size,
             path: path
@@ -104,5 +128,6 @@ const uploadService = async (file, fileType, path) => {
 module.exports = {
     uploadModel,
     uploadThumb,
+    deleteModelById,
     deleteFile
 }

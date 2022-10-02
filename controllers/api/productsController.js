@@ -106,18 +106,16 @@ const updateProduct = async (req, res) => {
         if(!_id) {
             return res.status(204).json({ 'message': `This client does not exist`});
         }
-        const result = await Product.updateOne(
-            {
-                _id: id
-            },
-            {
-                name: name,
-                description: description,
-                price: price,
-                client_id: _id
-            }
-        );
-
+        const found = await Product.findById(id);
+        found.name = name;
+        found.description = description;
+        found.price = price;
+        found.client_id = _id;
+        if (thumb_id && thumb_path) {            
+            found.thumb = thumb_id;
+            found.thumb_link = thumb_path;
+        }
+        const result = await found.save();
         res.status(201).json(result);
     } catch (err) {
         console.error(err);
