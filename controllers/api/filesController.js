@@ -105,7 +105,8 @@ const deleteService = async (file_id) => {
 
 const uploadService = async (file, fileType, path, name) => {
     try {
-        const found = await File.findOne({name: name, path: path});
+        const savePath = path.split('public/').pop();
+        const found = await File.findOne({name: name, path: savePath});
         if (found) return {path: found.path, file_id: found._id};
         // Uploading
         file.mv(path);
@@ -114,7 +115,7 @@ const uploadService = async (file, fileType, path, name) => {
             name: name,
             type: fileType,
             size: file.size,
-            path: path
+            path: savePath
         });
         await fileDB.save();
         return {path: path, file_id: fileDB._id};
