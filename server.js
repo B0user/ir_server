@@ -68,7 +68,7 @@ app.use('/register',    require('./routes/register'));
 app.use('/auth',        require('./routes/auth'));
 app.use('/refresh',     require('./routes/refresh'));
 app.use('/logout',      require('./routes/logout'));
-app.use('/modelview',   require('./routes/public/modelview'));
+app.use('/mv',          require('./routes/public/modelview'));
 
 app.use(verifyJWT);
 app.use('/files',       require('./routes/api/files'));

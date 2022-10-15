@@ -1,30 +1,6 @@
 const {model, Schema, ObjectId} = require('mongoose');
 
-const 
-    diskSchema = new Schema({
-        accessLink: String,
-        storage: {
-            type: Number,
-            required: true
-        },
-        filled:{
-            type: Number,
-            def: 0
-        }
-    }),
-    fileSchema = new Schema({
-        name:{
-            type: String,
-            required: true
-        },
-        type: {
-            type: String,
-            required: true
-        },
-        size: { type: Number },
-        path: { type: String, def:'' },
-        disk: { type: ObjectId, ref: 'Disk' }
-    }),
+const
     userSchema = new Schema({
         username: {
             type: String,
@@ -76,17 +52,13 @@ const
             ref: 'Model'
         }],
         thumb: {
-            type: ObjectId,
-            ref: 'File'
-        },
-        thumb_link: {
             type: String,
             default: ''
         },
-        images: [{
-            type: ObjectId,
-            ref: 'File'
-        }],
+        active: {
+            type: Boolean,
+            default: true
+        },
         link: {
             type: String,
             default: ''
@@ -106,20 +78,18 @@ const
             required: true
         },
         file: {
-            type: ObjectId,
-            ref: 'File'
-        },
-        link: {
             type: String,
             default: ''
-        }
+        },
+        active: {
+            type: Boolean,
+            default: true
+        },
     });
 
 const
-    Disk = model('Disk', diskSchema),
-    File = model('File', fileSchema),
     User = model('User', userSchema),
     Product = model('Product', productSchema),
     Model = model('Model', modelSchema);
 
-module.exports = { Disk, File, User, Product, Model };
+module.exports = { User, Product, Model };

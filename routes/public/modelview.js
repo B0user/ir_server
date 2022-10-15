@@ -3,7 +3,7 @@ const router = express.Router();
 const modelsController = require('../../controllers/api/modelsController');
 const productsController = require('../../controllers/api/productsController');
 
-router.get('/products/:cid', productsController.getProductsForClient);
-router.get('/:pid', modelsController.readVariations);
+router.get('/products/:cid', productsController.getPublicClientProducts);
+router.get('/models/:pid', modelsController.getVariations);
 
 module.exports = router;

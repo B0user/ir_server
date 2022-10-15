@@ -7,7 +7,6 @@ const verifyRoles = require('../../middleware/verifyRoles');
 router.route('/')
     .post(verifyRoles(ROLES_LIST.Boss), usersController.addUserAdmin)
     .get(verifyRoles(ROLES_LIST.Boss), usersController.getAllUsers);
-    
 
 router.route('/:id')
     .get(verifyRoles(ROLES_LIST.Boss), usersController.getUser)

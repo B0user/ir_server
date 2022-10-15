@@ -6,7 +6,8 @@ const verifyRoles = require('../../middleware/verifyRoles');
 
 router.post('/upload/models', verifyRoles(ROLES_LIST.Boss), filesController.uploadModel);
 router.post('/upload/images', verifyRoles(ROLES_LIST.Client), filesController.uploadThumb);
-router.delete('delete/:file_id', verifyRoles(ROLES_LIST.Boss), filesController.deleteFile);
+
+// router.delete('/delete/fname', ...) Delete file from disk
 
 
 module.exports = router;

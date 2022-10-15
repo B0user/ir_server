@@ -57,55 +57,9 @@ const uploadThumb = async (req, res) => {
     }
 }
 
-const deleteModelById = async (req, res) => {
-    try {
-        console.log('MODEL BY ID DELETE');
-        const { id } = req.params;
-        const file_id = await Model.findById(id, 'file');
-        console.log(file_id);
-        if (!file_id) return res.sendStatus(400);
-        const result = await deleteService(file_id);
-        console.log(result);
-        res.sendStatus(200);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-}
-
-const deleteFile = async (req, res) => {
-    try {
-        const {file_id} = req.params;
-        if (!file_id) return res.sendStatus(400);
-        const res = await deleteService(file_id);
-        if (!res) return res.sendStatus(400);
-        else res.sendStatus(200);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send(err);
-    }
-}
-
-const deleteService = async (file_id) => {
-    try {
-        console.log('DELETION');
-        const found = await File.findById(file_id);
-        console.log(found);
-        if (!found) return null;
-        const res = await found.delete();
-        console.log(res);
-        // Delete or archieve the file?
-
-        return true;
-    } catch (err) {
-        console.error(err);
-        return null;
-    }
-}
-
 const uploadService = async (file, fileType, path, name) => {
     try {
-        const savePath = path.split('public/').pop();
+        const savePath = path.substring(6);
         const found = await File.findOne({name: name, path: savePath});
         if (found) return {path: found.path, file_id: found._id};
         // Uploading
@@ -118,7 +72,7 @@ const uploadService = async (file, fileType, path, name) => {
             path: savePath
         });
         await fileDB.save();
-        return {path: path, file_id: fileDB._id};
+        return {path: savePath, file_id: fileDB._id};
     } catch (err) {
         console.error(err);
         return null;
@@ -128,6 +82,4 @@ const uploadService = async (file, fileType, path, name) => {
 module.exports = {
     uploadModel,
     uploadThumb,
-    deleteModelById,
-    deleteFile
 }

@@ -1,7 +1,7 @@
 const {Product, User} = require('../../model/Schemas');
 const {getUser_id} = require('./usersController');
 
-const createProduct = async (req,res) => {
+const addProduct = async (req,res) => {
     const { category, name, description, price, thumb_id, thumb_path } = req.body;
     if(!category || !name || !description || !price || !thumb_id || !thumb_path || !req?.user){
         return res.status(400).json({ 'message': 'Not enough data' });
@@ -26,64 +26,6 @@ const createProduct = async (req,res) => {
         console.error(err);
     }
 }
-
-const readAllProductsForClient = async (req, res) => {
-    try {
-        if(!req?.user){
-            return res.status(400).json({ 'message': 'Wrong request' });
-        }
-        const _id = await getUser_id(req.user);
-        if(!_id) {
-            return res.status(204).json({ 'message': `This client does not exist`});
-        }
-        // Get Products List
-        const result = await Product.find({ client_id: _id }).exec();
-        if (!result) {
-            return res.status(204).json({ 'message': `This client has no Products`});
-        }
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
-const getProductsForClient = async (req, res) => {
-    try {
-        const {cid} = req.params;
-        if(!cid){
-            return res.status(400).json({ 'message': 'Wrong request' });
-        }
-        const client = await User.findById(cid);
-        if(!client) {
-            return res.status(204).json({ 'message': `This client does not exist`});
-        }
-        // Get Products List
-        const result = await Product.find({ client_id: cid }).exec();
-        if (!result) {
-            return res.status(204).json({ 'message': `This client has no Products`});
-        }
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
-const readAllProducts = async (req, res) => {
-    try {
-        // Get Products List
-        const result = await Product.find();
-        if (!result) {
-            return res.status(204).json({ 'message': `There are no Products`});
-        }
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
 
 const readProduct = async (req, res) => {
     const { id } = req.params;
@@ -123,7 +65,7 @@ const updateProduct = async (req, res) => {
     }
 }
 
-const deleteProduct = async (req, res) => {
+const archieveProduct = async (req, res) => {
     const { id } = req.params;
     if (!id || !req?.user) return res.status(400).json({ "message": 'Wrong request' });
     const _id = await getUser_id(req.user);
@@ -134,9 +76,84 @@ const deleteProduct = async (req, res) => {
     if (!product) {
         return res.status(204).json({ 'message': `Product ID ${req.params.id} not found` });
     }
-    const result = await product.deleteOne({ _id: id });
+    product.active = false;
+    const result = await product.save();
     res.json(result);
 }
+
+const restoreProduct = async (req, res) => {
+    const { id } = req.params;
+    if (!id || !req?.user) return res.status(400).json({ "message": 'Wrong request' });
+    const _id = await getUser_id(req.user);
+    if(!_id) {
+        return res.status(204).json({ 'message': `This client does not exist`});
+    }
+    const product = await Product.findOne({ _id: id,  client_id: _id}).exec();
+    if (!product) {
+        return res.status(204).json({ 'message': `Product ID ${req.params.id} not found` });
+    }
+    product.active = true;
+    const result = await product.save();
+    res.json(result);
+}
+
+const getAllClientProducts = async (req, res) => {
+    try {
+        if(!req?.user){
+            return res.status(400).json({ 'message': 'Wrong request' });
+        }
+        const _id = await getUser_id(req.user);
+        if(!_id) {
+            return res.status(204).json({ 'message': `This client does not exist`});
+        }
+        // Get Products List
+        const result = await Product.find({ client_id: _id }).exec();
+        if (!result) {
+            return res.status(204).json({ 'message': `This client has no Products`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
+const getPublicClientProducts = async (req, res) => {
+    try {
+        const {cid} = req.params;
+        if(!cid){
+            return res.status(400).json({ 'message': 'Wrong request' });
+        }
+        const client = await User.findById(cid);
+        if(!client) {
+            return res.status(204).json({ 'message': `This client does not exist`});
+        }
+        // Get Products List
+        const result = await Product.find({ client_id: cid, active: true }).exec();
+        if (!result) {
+            return res.status(204).json({ 'message': `This client has no Products`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
+const getAllProducts = async (req, res) => {
+    try {
+        // Get Products List
+        const result = await Product.find();
+        if (!result) {
+            return res.status(204).json({ 'message': `There are no Products`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
 
 const isExistingProduct = async (id) => {
     try {
@@ -149,12 +166,13 @@ const isExistingProduct = async (id) => {
 }
 
 module.exports = {
-    createProduct,
+    addProduct,
     readProduct,
     updateProduct,
-    deleteProduct,
+    archieveProduct,
+    restoreProduct,
     isExistingProduct,
-    readAllProductsForClient,
-    getProductsForClient,
-    readAllProducts
+    getPublicClientProducts,
+    getAllClientProducts,
+    getAllProducts
 }

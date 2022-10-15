@@ -1,7 +1,7 @@
 const { Model, Product } = require('../../model/Schemas');
 const { isExistingProduct } = require('./productsController');
 
-const createModel = async (req,res) => {
+const addModel = async (req,res) => {
     try {   
         const { pid } = req.params;
         const { color, size, file_id, link } = req.body;
@@ -23,37 +23,6 @@ const createModel = async (req,res) => {
         await productExists.save();
         
         res.status(201).json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
-const getAllModels = async (req, res) => {
-    try {
-        // Get Models List
-        const result = await Model.find();
-        if (!result) {
-            return res.status(204).json({ 'message': `There are no Models`});
-        }
-        res.json(result);
-    } catch (err) {
-        console.error(err);
-        res.sendStatus(500);
-    }
-}
-
-const readVariations = async (req, res) => {
-    const { pid } = req.params;
-    try {
-        const productExists = await isExistingProduct(pid);
-        if (!productExists) return res.status(204).json({ 'message': `This product does not exist`});
-        // Get Models List
-        const result = await Model.find({ product_id: pid }).exec();
-        if (!result) {
-            return res.status(204).json({ 'message': `This product has no Models`});
-        }
-        res.json(result);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -107,19 +76,67 @@ const updateModel = async (req, res) => {
     }
 }
 
-const deleteModel = async (req, res) => {
+const archieveModel = async (req, res) => {
     const { id } = req.params;
     try {
         const foundModel = await Model.findById(id).exec();
         if( !foundModel ) return res.status(204).json({ 'message': `This model does not exist`});
+        foundModel.active = false;
 
-        const result = await foundModel.delete();
+        const result = await foundModel.save();
         res.json(result);
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
     }
 }
+
+const restoreModel = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const foundModel = await Model.findById(id).exec();
+        if( !foundModel ) return res.status(204).json({ 'message': `This model does not exist`});
+        foundModel.active = true;
+
+        const result = await foundModel.save();
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
+const getAllModels = async (req, res) => {
+    try {
+        // Get Models List
+        const result = await Model.find();
+        if (!result) {
+            return res.status(204).json({ 'message': `There are no Models`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
+const getVariations = async (req, res) => {
+    const { pid } = req.params;
+    try {
+        const productExists = await isExistingProduct(pid);
+        if (!productExists) return res.status(204).json({ 'message': `This product does not exist`});
+        // Get Models List
+        const result = await Model.find({ product_id: pid }).exec();
+        if (!result) {
+            return res.status(204).json({ 'message': `This product has no Models`});
+        }
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
 
 const isExistingModel = async (id) => {
     try {
@@ -133,11 +150,12 @@ const isExistingModel = async (id) => {
 }
 
 module.exports = {
-    createModel,
+    addModel,
     getAllModels,
-    readVariations,
+    getVariations,
     readModel,
     updateModel,
-    deleteModel,
+    archieveModel,
+    restoreModel,
     isExistingModel
 }
