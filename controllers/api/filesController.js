@@ -1,6 +1,5 @@
 const path = require('path');
 const { v4: uuid } = require('uuid');
-const { File, Model } = require('../../model/Schemas');
 const { getUser_id } = require('./usersController');
 
 const uploadModel = async (req, res) => {
@@ -19,7 +18,7 @@ const uploadModel = async (req, res) => {
             const name = uuid() + '.' + model.name.split('.').pop();
             const pathModel = path.join('public', 'media', 'models', client_id, product_id, name);
            
-            const result = await uploadService(model, 'model', pathModel, name);
+            const result = await uploadService(model, pathModel);
             if (!result) return res.sendStatus(409);
             res.status(201).json(result);
         }
@@ -46,7 +45,7 @@ const uploadThumb = async (req, res) => {
             const name = uuid() + '.' + image.name.split('.').pop();
             const pathImage = path.join('public', 'media', 'thumbs', client_id.toString(), name);
             
-            const result = await uploadService(image, 'image', pathImage, name);
+            const result = await uploadService(image, pathImage);
             if (!result) return res.sendStatus(409);
             res.status(201).json(result);
         }
@@ -57,22 +56,12 @@ const uploadThumb = async (req, res) => {
     }
 }
 
-const uploadService = async (file, fileType, path, name) => {
+const uploadService = async (file, path) => {
     try {
         const savePath = path.substring(6);
-        const found = await File.findOne({name: name, path: savePath});
-        if (found) return {path: found.path, file_id: found._id};
         // Uploading
         file.mv(path);
-        // Create new File
-        const fileDB = new File({
-            name: name,
-            type: fileType,
-            size: file.size,
-            path: savePath
-        });
-        await fileDB.save();
-        return {path: savePath, file_id: fileDB._id};
+        return {path: savePath};
     } catch (err) {
         console.error(err);
         return null;
