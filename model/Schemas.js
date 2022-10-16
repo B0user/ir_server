@@ -51,7 +51,7 @@ const
             type: ObjectId,
             ref: 'Model'
         }],
-        thumb: {
+        thumb_path: {
             type: String,
             default: ''
         },
@@ -77,7 +77,7 @@ const
             type: String,
             required: true
         },
-        file: {
+        model_path: {
             type: String,
             default: ''
         },

@@ -4,8 +4,8 @@ const { isExistingProduct } = require('./productsController');
 const addModel = async (req,res) => {
     try {   
         const { pid } = req.params;
-        const { color, size, file_id, link } = req.body;
-        if(!pid || !color || !size || !file_id || !link){
+        const { color, size, file_path } = req.body;
+        if(!pid || !color || !size || !file_path){
             return res.status(400).json({ 'message': 'Not enough data' });
         }
         const productExists = await Product.findById(pid);
@@ -15,8 +15,7 @@ const addModel = async (req,res) => {
             product_id: pid,
             color: color,
             size: size,
-            file: file_id,
-            link: link
+            model_path: file_path
         });
         productExists.models.push(result._id);
         productExists.sizes.push(result.size);
@@ -46,7 +45,7 @@ const readModel = async (req, res) => {
 
 const updateModel = async (req, res) => {
     const { id } = req.params;
-    const { color, size, file_id, link } = req.body;
+    const { color, size, file_path } = req.body;
     if(!id || !color || !size ){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
@@ -59,9 +58,8 @@ const updateModel = async (req, res) => {
         try {
             foundModel.color = color;
             foundModel.size = size;
-            if (file_id && link) {
-                foundModel.file = file_id;
-                foundModel.link = link;
+            if (file_path) {
+                foundModel.model_path = file_path;
             }
             const result = await foundModel.save();
             // await productExists.sizes.push(result.size);

@@ -6,4 +6,4 @@ const productsController = require('../../controllers/api/productsController');
 router.get('/products/:cid', productsController.getPublicClientProducts);
 router.get('/models/:pid', modelsController.getVariations);
 
-module.exports = router;
+module.exports = router; 

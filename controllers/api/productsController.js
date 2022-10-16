@@ -2,8 +2,8 @@ const {Product, User} = require('../../model/Schemas');
 const {getUser_id} = require('./usersController');
 
 const addProduct = async (req,res) => {
-    const { category, name, description, price, thumb_id, thumb_path } = req.body;
-    if(!category || !name || !description || !price || !thumb_id || !thumb_path || !req?.user){
+    const { category, name, description, price, thumb_path } = req.body;
+    if(!category || !name || !description || !price || !thumb_path || !req?.user){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
     try {
@@ -12,13 +12,12 @@ const addProduct = async (req,res) => {
             return res.status(204).json({ 'message': `This client does not exist`});
         }
         const result = await Product.create({
+            client_id: foundUser._id,
             category: category,
             name: name,
             description: description,
             price: price,
-            client_id: foundUser._id,
-            thumb: thumb_id,
-            thumb_link: thumb_path
+            thumb_path: thumb_path
         });
         await foundUser.products.push(result._id);
         res.status(201).json(result);
@@ -39,7 +38,7 @@ const readProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, description, price, thumb_id, thumb_path  } = req.body;
+    const { name, description, price, thumb_path  } = req.body;
     if(!id || !name || !description || !price || !req?.user){
         return res.status(400).json({ 'message': 'Not enough data' });
     }
@@ -49,13 +48,12 @@ const updateProduct = async (req, res) => {
             return res.status(204).json({ 'message': `This client does not exist`});
         }
         const found = await Product.findById(id);
+        found.client_id = _id;
         found.name = name;
         found.description = description;
         found.price = price;
-        found.client_id = _id;
-        if (thumb_id && thumb_path) {            
-            found.thumb = thumb_id;
-            found.thumb_link = thumb_path;
+        if (thumb_path) {            
+            found.thumb_path = thumb_path;
         }
         const result = await found.save();
         res.status(201).json(result);
