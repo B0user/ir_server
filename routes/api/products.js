@@ -14,9 +14,8 @@ router.route('/')
 
 router.route('/:id')
     .get(verifyRoles(ROLES_LIST.Client), productsController.readProduct)
-    .put(verifyRoles(ROLES_LIST.Client), productsController.updateProduct)
-    .delete(verifyRoles(ROLES_LIST.Client), productsController.archieveProduct);
-    
-router.post('/:id/restore', verifyRoles(ROLES_LIST.Client), productsController.restoreProduct);
+    .put(verifyRoles(ROLES_LIST.Client), productsController.updateProduct);
+
+router.put('/:id/archivate', verifyRoles(ROLES_LIST.Client), productsController.archieveProduct);
 
 module.exports = router;

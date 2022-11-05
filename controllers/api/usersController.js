@@ -4,6 +4,7 @@ const {User} = require('../../model/Schemas');
 const bcrypt = require('bcrypt');
 
 const addUserAdmin = async (req, res) => {
+    // Check inputs
     const { user, pwd, roles } = req.body;
     if (!user || !pwd) return res.status(400).json({ 'message': 'Username and password are required.' });
 
@@ -16,13 +17,14 @@ const addUserAdmin = async (req, res) => {
             const hashedPwd = await bcrypt.hash(pwd, 10);
     
             //create and store the new user
-            const result = await User.create({
+            await User.create({
                 "username": user,
                 "password": hashedPwd,
                 "roles": {
                     User: roles.User ? ROLES_LIST.User : null,
                     Client: roles.Client ? ROLES_LIST.Client : null
-                }
+                },
+                "active": true
             });
     
             res.status(201).json({ 'success': `New user ${user} created!` });
@@ -48,13 +50,16 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
-    const  { id } = req.params;
+    // Check inputs
+    let id = req.params.id;
     if (!id) return res.status(400).json({ "message": 'User ID required' });
+    id = checkId(id);
+    if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
+
+    // DB work
     try {
         const user = await User.findOne({ _id: id }).exec();
-        if (!user) {
-            return res.status(204).json({ 'message': `User ID ${id} not found` });
-        }
+        if (!user) return res.status(204).json({ 'message': `User ID ${id} not found` });
         res.json(user);
     } catch (err) {
         console.error(err);
@@ -103,10 +108,14 @@ const updateUser = async (req, res) => {
 }
 
 const updateUserAdmin = async (req, res) => {
-    const { id } = req.params;
+    // Check inputs
+    let id = req.params.id;
     const { user, roles } = req.body;
     if (!id || !user) return res.status(400).json({ "message": 'Wrong request' });
-    // Check for unique username
+    id = checkId(id);
+    if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
+
+    // DB work
     try {
         const foundUser = await User.findById(id).exec();
         if (foundUser.username !== user){
@@ -132,12 +141,45 @@ const updateUserAdmin = async (req, res) => {
     }
 }
 
+const archivateClient = async (req, res) => {
+    // Check inputs
+    let id = req.params.id;
+    if (!id) return res.status(400).json({ "message": 'User ID required' });
+    id = checkId(id);
+    if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
+
+    // DB work
+    try {
+        const foundClient = await User.findById(id);
+        if(!foundClient || !foundClient.roles.Client) return res.status(404).json({ 'message': `This client does not exist`});
+        
+        foundClient.active = !foundClient.active;
+        const result = await foundClient.save();
+        res.json(result);
+    } catch (err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+
 const getUser_id = async (name) => {
     try {
         const id = await User.findOne({username: name}, '_id');
         return id._id;
     } catch (err) {
         console.error(err);
+        return null;
+    }
+}
+
+const checkId = (object_id) => {
+    let id = object_id;
+    try{
+        id = mongoose.Types.ObjectId(id.trim());
+        return id;
+    } catch(e){
+        console.error(e);
         return null;
     }
 }
@@ -149,5 +191,7 @@ module.exports = {
     updateUser,
     updateUserAdmin,
     getUser,
-    getUser_id
+    archivateClient,
+    getUser_id,
+    checkId
 }

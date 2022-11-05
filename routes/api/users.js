@@ -13,6 +13,8 @@ router.route('/:id')
     .delete(verifyRoles(ROLES_LIST.Boss), usersController.deleteUser)
     .put(verifyRoles(ROLES_LIST.Boss), usersController.updateUserAdmin);
 
+router.put('/:id/archivate', verifyRoles(ROLES_LIST.Boss), usersController.archivateClient);
+
 router.route('/personal/:id')
     .put(verifyRoles(ROLES_LIST.Boss, ROLES_LIST.Client, ROLES_LIST.User), usersController.updateUser);
 

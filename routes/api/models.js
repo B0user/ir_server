@@ -10,12 +10,11 @@ router.get('/all', verifyRoles(ROLES_LIST.Boss), modelsController.getAllModels);
 router.route('/exact/:id')
     .get(verifyRoles(ROLES_LIST.Boss), modelsController.readModel)
     .put(verifyRoles(ROLES_LIST.Boss), modelsController.updateModel)
-    .delete(verifyRoles(ROLES_LIST.Boss), modelsController.archieveModel);
+    
+router.post('/exact/:id/archivate', verifyRoles(ROLES_LIST.Boss), modelsController.archieveModel);
 
-router.post('/exact/:id/restore', verifyRoles(ROLES_LIST.Boss), modelsController.restoreModel);
 
 router.route('/:pid')
-    .post(verifyRoles(ROLES_LIST.Boss), modelsController.addModel)
-    .get(verifyRoles(ROLES_LIST.Boss, ROLES_LIST.Client), modelsController.getVariations);
+    .post(verifyRoles(ROLES_LIST.Boss), modelsController.addModel);
 
 module.exports = router;

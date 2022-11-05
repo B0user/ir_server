@@ -23,7 +23,11 @@ const
         products: [{
             type: ObjectId,
             ref: 'Product'
-        }]
+        }],
+        active: {
+            type: Boolean,
+            default: true
+        }
     }),
     productSchema = new Schema({
         client_id: {
