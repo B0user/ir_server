@@ -94,18 +94,17 @@ const archieveModel = async (req, res) => {
         if( !foundModel ) return res.status(204).json({ 'message': `This model does not exist`});
         foundModel.active = !foundModel.active;
         const savedModel = await foundModel.save();
-
         // Change original Product
         const originProduct = await Product.findById(savedModel.product_id).exec();
         if( !originProduct ) return res.status(204).json({ 'message': `This product does not exist`});
-        if( savedModel.active ) originProduct.push(savedModel.size);
-        else {
-            if(!originProduct.sizes.includes(savedModel.size)) 
+        if( savedModel.active ) {
+            if(!originProduct.sizes.includes(savedModel.size)) originProduct.sizes.push(savedModel.size);
+        }
+        else if(originProduct.sizes.includes(savedModel.size)) {
             var index = originProduct.sizes.indexOf(savedModel.size);
             if (index !== -1) originProduct.sizes.splice(index, 1);
-        }
+        } 
         await originProduct.save();
-
         res.json(savedModel);
     } catch (err) {
         console.error(err);
