@@ -11,7 +11,7 @@ router.route('/exact/:id')
     .get(verifyRoles(ROLES_LIST.Boss), modelsController.readModel)
     .put(verifyRoles(ROLES_LIST.Boss), modelsController.updateModel)
     
-router.post('/exact/:id/archivate', verifyRoles(ROLES_LIST.Boss), modelsController.archieveModel);
+router.put('/exact/:id/archivate', verifyRoles(ROLES_LIST.Boss, ROLES_LIST.Client), modelsController.archieveModel);
 
 
 router.route('/:pid')
