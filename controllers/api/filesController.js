@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const { v4: uuid } = require('uuid');
 const { getUser_id } = require('./usersController');
 
@@ -53,6 +54,16 @@ const uploadThumb = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send(err);
+    }
+}
+
+const updateService = async (file, path, prevPath) => {
+    try {
+        await fs.unlink(prevPath);
+        return await uploadService(file, path);
+    } catch (err) {
+        console.error(err);
+        return null;
     }
 }
 

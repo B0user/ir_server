@@ -24,7 +24,7 @@ const getProductsForClient = async (req, res) => {
     }
 }
 
-const getModelsForProduct = async (req, res) => {
+const getModelInfoForProduct = async (req, res) => {
     // Check inputs
     let pid = req.params.pid;
     if(!pid ) return res.status(400).json({ 'message': 'No ID provided' });
@@ -41,7 +41,7 @@ const getModelsForProduct = async (req, res) => {
         const result = await Model.find({ product_id: pid }).exec();
         if (!result) return res.status(204).json({ 'message': `This product has no Models`});
 
-        res.json(result);
+        res.json({models: result, link: foundProduct.link, name: foundProduct.name});
     } catch (err) {
         console.error(err);
         res.sendStatus(500);
@@ -50,5 +50,5 @@ const getModelsForProduct = async (req, res) => {
 
 module.exports = {
     getProductsForClient,
-    getModelsForProduct
+    getModelInfoForProduct
 }

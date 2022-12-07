@@ -3,21 +3,25 @@ const { getUser_id, checkId } = require('./usersController');
 
 const addProduct = async (req,res) => {
     // Check inputs
-    const { category, name, description, price, thumb_path } = req.body;
-    if(!category || !name || !description || !price || !thumb_path || !req?.user) return res.status(400).json({ 'message': 'Not enough data' });
+    const { category, name, description, spoma_chain, thumb_path } = req.body;
+    if(!category || !name || !description || !spoma_chain || !thumb_path || !req?.user) return res.status(400).json({ 'message': 'Not enough data' });
     // DB work
     try {
         const foundUser = await User.findOne({username: req.user});
         if(!foundUser) return res.status(404).json({ 'message': `This client does not exist`});
-        const result = await Product.create({
+
+        const newProduct = {
             client_id: foundUser._id,
             category: category,
             name: name,
             description: description,
-            price: price,
             thumb_path: thumb_path,
+            spoma_chain: spoma_chain,
             active: true
-        });
+        };
+        const result = await Product.create(newProduct);
+        console.log(result);
+
         await foundUser.products.push(result._id);
         res.status(201).json(result);
     } catch (err) {
@@ -46,8 +50,8 @@ const readProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
     // Check inputs
     let id = req.params.id;
-    const { name, description, price, thumb_path  } = req.body;
-    if(!id || !name || !description || !price || !req?.user) return res.status(400).json({ 'message': 'Not enough data' });
+    const { name, description, spoma_chain, thumb_path  } = req.body;
+    if(!id || !name || !description || !spoma_chain || !req?.user) return res.status(400).json({ 'message': 'Not enough data' });
     id = checkId(id);
     if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
     // DB work
@@ -59,10 +63,12 @@ const updateProduct = async (req, res) => {
         found.client_id = _id;
         found.name = name;
         found.description = description;
-        found.price = price;
+        found.spoma_chain = spoma_chain;
         if (thumb_path) found.thumb_path = thumb_path;
 
         const result = await found.save();
+        console.log(result);
+
         res.status(201).json(result);
     } catch (err) {
         console.error(err);

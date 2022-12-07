@@ -4,8 +4,8 @@ const { checkId } = require('./usersController');
 const addModel = async (req,res) => {
     // Check inputs
     let pid = req.params.pid;
-    const { color, size, model_path } = req.body;
-    if(!pid || !color || !size || !model_path) return res.status(400).json({ 'message': 'Not enough data' });
+    const { size, model_path } = req.body;
+    if(!pid || !size || !model_path) return res.status(400).json({ 'message': 'Not enough data' });
     pid = checkId(pid);
     if(!pid) return res.status(400).json({ 'message': 'Wrong ID request' });
     // DB work
@@ -15,15 +15,17 @@ const addModel = async (req,res) => {
         
         const result = await Model.create({
             product_id: pid,
-            color: color,
             size: size,
-            model_path: model_path
+            model_path: model_path,
+            active: true
         });
 
-        if(!foundProduct.models.includes(result._id)) foundProduct.models.push(result._id);
-        if(!foundProduct.sizes.includes(result.size)) foundProduct.sizes.push(result.size);
+        const chain = foundProduct.spoma_chain.find((chain) => chain.size === size);
+        if(chain) foundProduct.spoma_chain[foundProduct.spoma_chain.indexOf(chain)].model = result._id;
+        else foundProduct.spoma_chain.push({size: size, model: result._id});
 
-        await foundProduct.save();
+        let message = await foundProduct.save();
+
         res.status(201).json(result);
     } catch (err) {
         console.error(err);
@@ -54,8 +56,8 @@ const readModel = async (req, res) => {
 const updateModel = async (req, res) => {
     // Check inputs
     let id = req.params.id;
-    const { color, size, model_path } = req.body;
-    if(!id || !color || !size ) return res.status(400).json({ 'message': 'Not enough data' });
+    const { size, model_path } = req.body;
+    if(!id || !size ) return res.status(400).json({ 'message': 'Not enough data' });
     id = checkId(id);
     if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
 
@@ -66,10 +68,12 @@ const updateModel = async (req, res) => {
         if (!foundModel) return res.sendStatus(401);
         // Find and change original Product
         const originProduct = await Product.findById(foundModel.product_id).exec();
-        var index = originProduct.sizes.indexOf(foundModel.size);
-        if (index !== -1) originProduct.sizes[index] = size;
+
+        var chain = originProduct.spoma_chain.find((chain) => chain.size === size);
+        var index = originProduct.spoma_chain.indexOf(chain);
+        if (index !== -1) originProduct.spoma_chain[index].size = size;
+
         // Save changes of Model
-        foundModel.color = color;
         foundModel.size = size;
         if (model_path) foundModel.model_path = model_path;
 
@@ -94,16 +98,20 @@ const archieveModel = async (req, res) => {
         if( !foundModel ) return res.status(204).json({ 'message': `This model does not exist`});
         foundModel.active = !foundModel.active;
         const savedModel = await foundModel.save();
+
         // Change original Product
         const originProduct = await Product.findById(savedModel.product_id).exec();
         if( !originProduct ) return res.status(204).json({ 'message': `This product does not exist`});
-        if( savedModel.active ) {
-            if(!originProduct.sizes.includes(savedModel.size)) originProduct.sizes.push(savedModel.size);
+
+        // Find SPOMA chains
+        var chain = originProduct.spoma_chain.find((chain) => chain.size === savedModel.size);
+        if( !chain ) originProduct.spoma_chain.push({"size": `${savedModel.size}`, "model": savedModel._id, "active": savedModel.active});
+        else {
+            var index = originProduct.spoma_chain.indexOf(chain);
+            if(!chain.model || chain.model !== savedModel._id) originProduct.spoma_chain[index].model = savedModel._id;
+            originProduct.spoma_chain[index].active = savedModel.active;
+
         }
-        else if(originProduct.sizes.includes(savedModel.size)) {
-            var index = originProduct.sizes.indexOf(savedModel.size);
-            if (index !== -1) originProduct.sizes.splice(index, 1);
-        } 
         await originProduct.save();
         res.json(savedModel);
     } catch (err) {

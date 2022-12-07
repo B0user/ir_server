@@ -36,7 +36,7 @@ const
         },
         category: {
             type: String,
-            requierd: true
+            required: true
         },
         name: {
             type: String,
@@ -46,37 +46,31 @@ const
             type: String,
             required: true
         },
-        price: {
+        link: {
             type: String,
-            required: true
+            default: ''
         },
-        sizes: [ String ],
-        models: [{
-            type: ObjectId,
-            ref: 'Model'
-        }],
         thumb_path: {
             type: String,
             default: ''
         },
+        spoma_chain: [{
+            size: String,
+            price: String,
+            old_price: String,
+            model: {
+                type: ObjectId,
+                ref: 'Model'
+            },
+            active: Boolean
+        }],
         active: {
             type: Boolean,
             default: true
-        },
-        link: {
-            type: String,
-            default: ''
         }
     }),
     modelSchema = new Schema({
-        product_id: {
-            type: ObjectId,
-            ref:'Product'
-        },
-        color: {
-            type: String,
-            required: true
-        },
+        product_id: ObjectId,
         size: {
             type: String,
             required: true
@@ -88,12 +82,25 @@ const
         active: {
             type: Boolean,
             default: true
+        }
+    }),
+
+    supportChatSchema = new Schema({
+        message: String,
+        screenshot_path: String,
+        details: {
+            type: String,
+            osVersion: String,
+            browser: String
         },
-    });
+        report_date: Date,
+        isComplete: Boolean
+    })
+
 
 const
     User = model('User', userSchema),
     Product = model('Product', productSchema),
-    Model = model('Model', modelSchema);
-
-module.exports = { User, Product, Model };
+    Model = model('Model', modelSchema),
+    SupportChat = model('SupportChat', supportChatSchema)
+module.exports = { User, Product, Model, SupportChat };
