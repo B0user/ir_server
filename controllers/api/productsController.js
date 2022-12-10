@@ -20,7 +20,6 @@ const addProduct = async (req,res) => {
             active: true
         };
         const result = await Product.create(newProduct);
-        console.log(result);
 
         await foundUser.products.push(result._id);
         res.status(201).json(result);
@@ -67,7 +66,6 @@ const updateProduct = async (req, res) => {
         if (thumb_path) found.thumb_path = thumb_path;
 
         const result = await found.save();
-        console.log(result);
 
         res.status(201).json(result);
     } catch (err) {
