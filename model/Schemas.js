@@ -11,7 +11,7 @@ const
                 type: Number,
                 default: 8888
             },
-            Moder: Number,
+            Support: Number,
             Client: Number,
             Boss: Number
         },
@@ -86,15 +86,16 @@ const
     }),
 
     supportChatSchema = new Schema({
-        message: String,
-        screenshot_path: String,
-        details: {
-            type: String,
-            osVersion: String,
-            browser: String
-        },
-        report_date: Date,
-        isComplete: Boolean
+        title: String,
+        origin: String,
+        messages: [{
+            source: String,
+            text:String,
+            file_path:String,
+            date: Date
+        }],
+        details: Object,
+        isClosed: Boolean
     })
 
 
