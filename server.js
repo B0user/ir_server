@@ -70,13 +70,14 @@ app.use('/refresh',     require('./routes/refresh'));
 app.use('/logout',      require('./routes/logout'));
 app.use('/mv',          require('./routes/public/modelview'));
 app.use('/publicreports', require('./routes/public/publicreports'));
+app.use('/contactform', require('./routes/public/contactform'));
 
 app.use(verifyJWT);
 app.use('/files',       require('./routes/api/files'));
 app.use('/products',    require('./routes/api/products'));
 app.use('/users',       require('./routes/api/users'));
 app.use('/models',      require('./routes/api/models'));
-app.use('/reports',  require('./routes/api/reports'));
+app.use('/reports',     require('./routes/api/reports'));
 
 app.all('*', (req, res) => {
     res.status(404);

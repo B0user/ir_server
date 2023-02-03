@@ -138,5 +138,5 @@ module.exports = {
     getReportByID,
     getReportsForClient,
     updateReport,
-    deleteReport
+    deleteReport,
 }

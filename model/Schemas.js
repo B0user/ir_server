@@ -96,6 +96,13 @@ const
         }],
         details: Object,
         isClosed: Boolean
+    }),
+
+    contactFormSchema = new Schema({
+        name: String,
+        email: String,
+        phone: String,
+        message: String
     })
 
 
@@ -103,5 +110,7 @@ const
     User = model('User', userSchema),
     Product = model('Product', productSchema),
     Model = model('Model', modelSchema),
-    SupportChat = model('SupportChat', supportChatSchema)
-module.exports = { User, Product, Model, SupportChat };
+    SupportChat = model('SupportChat', supportChatSchema),
+    ContactForm = model('ContactForm', contactFormSchema)
+
+module.exports = { User, Product, Model, SupportChat, ContactForm };
