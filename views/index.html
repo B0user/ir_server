@@ -1,16 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
-    <link rel="stylesheet" href="css/style.css" />
-</head>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>API Main Page</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">API Main Page</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">API Documentation</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">API Examples</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <div class="jumbotron mt-3">
+        <h1 class="display-4">Welcome to our API!</h1>
+        <p>API has commands.</p>
+        <p>Here are the public API:</p>
+        <ul>
+            <li>/mv - ModelView functions</li>
+            <li>/publicreprts - Reports from MV</li>
+            <li>/contactform - Contact Form functions</li>
+        </ul>
+        <br>
+        <hr>
 
-<body>
-    <h1>Index</h1>
-</body>
-
+        <h2>Client's products and models</h2>
+        <ul>
+            <li>GET /mv/products/:client_id  -  Get all products' info for Client</li>
+            <li>GET /mv/models/:product_id  -  Get all models of product for Client</li>
+        </ul>
+      </div>
+    </div>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popperjs.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </body>
 </html>
