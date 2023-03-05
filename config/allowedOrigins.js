@@ -6,6 +6,8 @@ const allowedOrigins = [
     'https://api.inroom.tech',
     'http://localhost:3000',
     'http://localhost:2000',
+    'http://127.0.0.1:3000',
+    'http://37.99.123.117:3000'
 ];
 
 module.exports = allowedOrigins;
