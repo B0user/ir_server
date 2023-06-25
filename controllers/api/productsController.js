@@ -49,7 +49,7 @@ const readProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
     // Check inputs
     let id = req.params.id;
-    const { name, description, spoma_chain, thumb_path  } = req.body;
+    const { name, description, spoma_chain, thumb_path, image_paths } = req.body;
     if(!id || !name || !description || !spoma_chain || !req?.user) return res.status(400).json({ 'message': 'Not enough data' });
     id = checkId(id);
     if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
@@ -64,9 +64,10 @@ const updateProduct = async (req, res) => {
         found.description = description;
         found.spoma_chain = spoma_chain;
         if (thumb_path) found.thumb_path = thumb_path;
+        if (image_paths) found.image_paths = image_paths;
 
         const result = await found.save();
-
+        console.log(result);
         res.status(201).json(result);
     } catch (err) {
         console.error(err);

@@ -54,6 +54,9 @@ const
             type: String,
             default: ''
         },
+        image_paths: [{
+            type: String
+        }],
         spoma_chain: [{
             size: String,
             price: String,

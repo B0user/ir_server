@@ -57,6 +57,42 @@ const uploadThumb = async (req, res) => {
     }
 }
 
+const uploadImages = async (req, res) => {
+    try {
+        if(!req.files || !req.user) {
+            return res.status(400).send({
+                status: false,
+                message: 'No file info uploaded'
+            });
+        } else {
+            // Get info
+            const images = req.files.images;
+            if(!images) return res.sendStatus(400);
+            const client_id = await getUser_id(req.user);
+            const imagePaths = []; // Array to store the paths
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                const name = uuid() + "." + img.name.split(".").pop();
+                const pathImage = path.join(
+                "public",
+                "media",
+                "images",
+                client_id.toString(),
+                name
+                );
+                const result = await uploadService(img, pathImage);
+                imagePaths.push(result.path); // Push the path to the array
+            }
+            if (!imagePaths.length) return res.sendStatus(409);
+            res.status(201).json({ paths: imagePaths });
+        }
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err);
+    }
+}
+
 const updateService = async (file, path, prevPath) => {
     try {
         await fs.unlink(prevPath);
@@ -82,4 +118,5 @@ const uploadService = async (file, path) => {
 module.exports = {
     uploadModel,
     uploadThumb,
+    uploadImages,
 }

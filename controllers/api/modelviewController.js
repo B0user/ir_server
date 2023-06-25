@@ -24,6 +24,25 @@ const getProductsForClient = async (req, res) => {
     }
 }
 
+const getExactProduct = async (req, res) => {
+    // Check inputs
+    let id = req.params.pid;
+    if(!id) return res.status(400).json({ 'message': 'No ID provided' });
+    id = checkId(id);
+    if(!id) return res.status(400).json({ 'message': 'Wrong ID request' });
+
+    try {
+        // Find Client
+        const result = await Product.findOne({_id:id});
+        if (!result) return res.status(204).json({ 'message': `This client has no Products`});
+
+        res.json(result);
+    } catch (err) {
+        console.error(err);
+        res.sendStatus(500);
+    }
+}
+
 const getModelInfoForProduct = async (req, res) => {
     // Check inputs
     let pid = req.params.pid;
@@ -50,5 +69,6 @@ const getModelInfoForProduct = async (req, res) => {
 
 module.exports = {
     getProductsForClient,
-    getModelInfoForProduct
+    getModelInfoForProduct,
+    getExactProduct
 }
