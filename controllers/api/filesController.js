@@ -66,8 +66,9 @@ const uploadImages = async (req, res) => {
             });
         } else {
             // Get info
-            const images = req.files.images;
-            if(!images) return res.sendStatus(400);
+            const images = Array.isArray(req.files.images) ? req.files.images : [req.files.images]; // Wrap single file in an array
+            if (images.length === 0) return res.sendStatus(400);
+            
             const client_id = await getUser_id(req.user);
             const imagePaths = []; // Array to store the paths
             for (let i = 0; i < images.length; i++) {
@@ -82,7 +83,9 @@ const uploadImages = async (req, res) => {
                 );
                 const result = await uploadService(img, pathImage);
                 imagePaths.push(result.path); // Push the path to the array
+
             }
+
             if (!imagePaths.length) return res.sendStatus(409);
             res.status(201).json({ paths: imagePaths });
         }
