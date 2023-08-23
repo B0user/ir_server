@@ -11,7 +11,8 @@ const allowedOrigins = [
     'http://2.132.101.123:3000',
     'http://5.34.113.45:3000',
     'http://192.168.0.111:3000',
-    'http://37.99.113.187:3000'
+    'http://37.99.113.187:3000',
+    'https://5.34.1.233:3000',
 ];
 
 module.exports = allowedOrigins;
